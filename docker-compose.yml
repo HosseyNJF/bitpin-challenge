@@ -1,0 +1,55 @@
+# IMPORTANT NOTE: This docker compose is only meant for use in local development.
+# It's not safe to use in production.
+
+x-app-common:
+  &app-common
+  image: bitpin:latest
+  build: .
+  environment:
+    APP_DATABASE_URL: psql://postgres:postgres@db:5432/bitpin
+    APP_CACHE_URL: redis://redis
+  env_file:
+    - .env
+  volumes:
+    - .:/opt/app
+
+services:
+  app:
+    <<: *app-common
+    command: >
+      gunicorn _base.wsgi:application
+        --name app-gunicorn
+        --bind 0.0.0.0:8000
+        --workers 4
+        --worker-tmp-dir /dev/shm
+        --pythonpath "/opt/app"
+        --log-level=info
+        --timeout 120
+        --reload
+    ports:
+      - ${APP_PUBLIC_PORT}:8000
+
+  celery-worker:
+    <<: *app-common
+    command: python -m celery -A _base worker --loglevel=INFO
+
+  celery-beat:
+    <<: *app-common
+    command: python -m celery -A _base beat --loglevel=INFO
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "no", "--save", "", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
+
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - ${POSTGRES_PUBLIC_PORT}:5432
+    environment:
+      POSTGRES_DB: bitpin
+      POSTGRES_PASSWORD: postgres
+
+volumes:
+  postgres_data:
