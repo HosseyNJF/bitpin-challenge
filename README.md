@@ -2,6 +2,32 @@
 
 This is a coding challenge for *Bitpin* company.
 
+## Spin up
+Make sure you have Docker installed and running.
+
+- Clone the repo:
+`git clone git@github.com:HosseyNJF/bitpin-challenge.git`
+- Copy `.env.example` to `.env`
+- Add a new secret key to the local env file - get one from `djecrety.ir`
+- Run these commands:
+```shell
+docker compose up -d
+docker compose exec app python manage.py migrate
+```
+- Open the application in the following address:
+http://localhost:3030/api/v1
+- You can see the documentation there.
+
+The register endpoint is accessible at: http://localhost:3030/api/v1/register
+
+The login endpoint is accessible via the Browsable API at: http://localhost:3030/api-auth/login
+
+In order to add articles to the blog, run this command and create a superuser:
+`docker compose exec app python manage.py createsuperuser`
+
+Then log in with those credentials at this URL: http://localhost:3030/admin and create your articles.
+
+
 ## How this platform deals with fake ratings?
 
 ### The problem
