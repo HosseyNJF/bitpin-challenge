@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'django_celery_beat',
     'rest_framework',
+    'constance',
 
     # Local apps
     'accounts',
@@ -156,4 +157,43 @@ CELERY_BROKER_URL = env('CACHE_URL')
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.CursorPagination',
     'PAGE_SIZE': 10
+}
+
+# Constance
+# https://django-constance.readthedocs.io/en/latest/
+CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+CONSTANCE_DATABASE_CACHE_BACKEND = 'default'
+
+CONSTANCE_CONFIG = {
+    'USER_REPUTATION_MINIMUM_AGE_HOURS': (
+        72, 'How old should accounts be before they\'re considered reputable?', int,
+    ),
+    'USER_REPUTATION_MINIMUM_RATINGS': (
+        1, 'How many ratings should accounts have before they\'re considered reputable?', int,
+    ),
+    'USER_REPUTATION_MULTIPLIER': (
+        0.6, 'What multiplier should be used when weighing the rating of new users?', float,
+    ),
+    'SPIKE_PROTECTION_ANALYSIS_INTERVAL_START_HOURS': (
+        72, 'How many hours ago should the timeframe of spike analysis begin?', int
+    ),
+    'SPIKE_PROTECTION_ANALYSIS_INTERVAL_END_HOURS': (
+        24, 'How many hours ago should the timeframe of spike analysis end?', int
+    ),
+    'SPIKE_PROTECTION_SAMPLING_MINUTES': (
+        180, 'How many minutes should be looked back when validating each rating?', int
+    ),
+    'SPIKE_PROTECTION_SAMPLING_SENSITIVITY': (
+        2, 'Sensitivity of the spike protection system - lower is more sensitive, between 1 to 5 is sensible', float
+    ),
+    'SPIKE_PROTECTION_MULTIPLIER': (
+        0.1, 'What multiplier should be used when weighing the ratings that happen in the middle of an attack?', float
+    ),
+}
+CONSTANCE_CONFIG_FIELDSETS = {
+    'Attack Mitigation Options': (
+        'USER_REPUTATION_MINIMUM_AGE_HOURS', 'USER_REPUTATION_MINIMUM_RATINGS', 'USER_REPUTATION_MULTIPLIER',
+        'SPIKE_PROTECTION_ANALYSIS_INTERVAL_START_HOURS', 'SPIKE_PROTECTION_ANALYSIS_INTERVAL_END_HOURS',
+        'SPIKE_PROTECTION_SAMPLING_MINUTES', 'SPIKE_PROTECTION_SAMPLING_SENSITIVITY', 'SPIKE_PROTECTION_MULTIPLIER',
+    ),
 }

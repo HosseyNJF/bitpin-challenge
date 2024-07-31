@@ -1,0 +1,1 @@
+from .update_article_statistics import update_article_statistics

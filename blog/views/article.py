@@ -1,4 +1,4 @@
-from django.db.models import Avg, Subquery
+from django.db.models import Subquery, OuterRef
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -14,9 +14,8 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Article.objects.all().annotate(
-            rating=Avg('ratings__value'),
             your_rating=Subquery(
-                Rating.objects.filter(user=self.request.user).values('value')
+                Rating.objects.filter(article_id=OuterRef('id'), user=self.request.user).values('value')
             )
         )
 
